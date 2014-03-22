@@ -24,7 +24,7 @@ of binding the member data. If you really need these features, it is simple to a
 There is a simple sample to show you how to use ELuna. In this sample, I will show you 
 how to register a class(using ELuna::registerClass), a method (using ELuna::registerMethod) or 
 a function(using ELuna::registerFunction) to lua, and how to register a lua 
-function(using ELuna::LuaFunction?) or table(using ELuna::LuaTable?) to cpp.
+function(using ELuna::LuaFunction) or table(using ELuna::LuaTable) to cpp.
 
 ```
 //sample.cpp
