@@ -20,6 +20,16 @@ as binding member data and so on. The main reason is that they were either used 
 by other ways during my past project. For example, we can register a "get" and "set" method to take the place
 of binding the member data. If you really need these features, it is simple to add by yourself.
 
+## BUILDS
+1. Install lua.
+2. Use premake4 to generate project files.
+```
+$ cd premake4
+$ premake4 action
+```
+You can read this page:[Premake Quick Start](http://industriousone.com/premake-quick-start)
+You need open premake4.lua and change "links {"lua51"}" to your lua lib's path.
+
 ## SUPPORTED PLATFORMS
 Windows, Unix, OS X.
 
@@ -136,16 +146,6 @@ end
 --define table
 luaTable = {"hello"}
 ```
-
-## BUILDS
-1. Install lua.
-2. Use premake4 to generate project files.
-```
-$ cd premake4
-$ premake4 action
-```
-You can read this page:[Premake Quick Start](http://industriousone.com/premake-quick-start)
-You need open premake4.lua and change "links {"lua51"}" to your lua lib's path.
 
 ## ATTENTIONS
 Transferring or returning pointer has best efficiency, followed by reference, the worst is transferring object.
