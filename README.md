@@ -144,7 +144,7 @@ luaTable = {"hello"}
 $ cd premake4
 $ premake4 action
 ```
-you can read this page:(Premake Quick Start)[http://industriousone.com/premake-quick-start]
+you can read this page:[Premake Quick Start](http://industriousone.com/premake-quick-start)
 
 ## ATTENTIONS
 Transferring or returning pointer has best efficiency, followed by reference, the worst is transferring object.
