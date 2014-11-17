@@ -144,7 +144,8 @@ luaTable = {"hello"}
 $ cd premake4
 $ premake4 action
 ```
-you can read this page:[Premake Quick Start](http://industriousone.com/premake-quick-start)
+You can read this page:[Premake Quick Start](http://industriousone.com/premake-quick-start)
+You need open premake4.lua and change "links {"lua51"}" to your lua lib's path.
 
 ## ATTENTIONS
 Transferring or returning pointer has best efficiency, followed by reference, the worst is transferring object.
