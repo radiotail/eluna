@@ -22,13 +22,13 @@ of binding the member data. If you really need these features, it is simple to a
 
 ## BUILDS
 1. Install lua.
-2. Use premake4 to generate project files.
+2. You need open premake4.lua and change "links {"lua51"}" to your lua lib's path.
+3. Use premake4 to generate project files.
 ```
 $ cd premake4
 $ premake4 action
 ```
-You can read this page:[Premake Quick Start](http://industriousone.com/premake-quick-start)
-You need open premake4.lua and change "links {"lua51"}" to your lua lib's path.
+You can read this page:[Premake Quick Start](http://industriousone.com/premake-quick-start).
 
 ## SUPPORTED PLATFORMS
 Windows, Unix, OS X.
