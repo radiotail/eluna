@@ -292,7 +292,6 @@ namespace ELuna
 			return *((*ud)->m_objPtr);
 		}
 	};
-	//struct convert2CppType { inline static T convertType(lua_State* L, int index){ return **(T**)lua_touserdata(L, index);} };
 
 	template<typename T>
 	struct convert2CppType<T*> {
@@ -301,7 +300,6 @@ namespace ELuna
 			return (*ud)->m_objPtr;
 		}
 	};
-	//struct convert2CppType<T*> { inline static T* convertType(lua_State* L, int index){ return *(T**)lua_touserdata(L, index);} };
 
 	template<typename T>
 	struct convert2CppType<T&> {
@@ -310,7 +308,6 @@ namespace ELuna
 			return *((*ud)->m_objPtr);
 		}
 	};
-	//struct convert2CppType<T&> { inline static T& convertType(lua_State* L, int index){ return **(T**)lua_touserdata(L, index);} };
 
 	template<typename T> inline T read2cpp(lua_State *L, int index) {
 		if(!lua_isuserdata(L,index)) {
@@ -347,8 +344,6 @@ namespace ELuna
 		inline static void convertType(lua_State* L, T& ret){
 			UserData<T>** ud = static_cast<UserData<T>**>(lua_newuserdata(L, sizeof(UserData<T>*)));
 			*ud = new UserData<T>(new T(ret));
-			/*T** ud = (T**)lua_newuserdata(L, sizeof(T*));
-			*ud = new T(ret);*/
 
 			luaL_getmetatable(L, ClassName<T>::getName());
 			lua_setmetatable(L, -2);
@@ -360,8 +355,6 @@ namespace ELuna
 		inline static void convertType(lua_State* L, T* ret){
 			UserData<T>** ud = static_cast<UserData<T>**>(lua_newuserdata(L, sizeof(UserData<T>*)));
 			*ud = new UserData<T>(ret, false);
-			/*T** ud = (T**)lua_newuserdata(L, sizeof(T*));
-			*ud = ret;*/
 
 			luaL_getmetatable(L, ClassName<T>::getName());
 			lua_setmetatable(L, -2);
@@ -372,9 +365,7 @@ namespace ELuna
 	struct convert2LuaType<T&> {
 		inline static void convertType(lua_State* L, T& ret){
 			UserData<T>** ud = static_cast<UserData<T>**>(lua_newuserdata(L, sizeof(UserData<T>*)));
-			*ud = new UserData<T>(&ret);
-			/*T** ud = (T**)lua_newuserdata(L, sizeof(T*));
-			*ud = &ret;*/
+			*ud = new UserData<T>(&ret, false);
 
 			luaL_getmetatable(L, ClassName<T>::getName());
 			lua_setmetatable(L, -2);
@@ -438,12 +429,10 @@ namespace ELuna
 
 		inline static void release() {
 			for (Function_Vector::iterator itr = m_CPPFunctions.begin(); itr != m_CPPFunctions.end(); ++itr) {
-				//printf("releaseFunctions %p\n", *itr);
 				delete *itr;
 			}
 
 			for (Method_Vector::iterator itr = m_CPPMethods.begin(); itr != m_CPPMethods.end(); ++itr) {
-				//printf("releaseMethods %p\n", *itr);
 				delete *itr;
 			}
 		}
@@ -514,6 +503,22 @@ namespace ELuna
 		};\
 	};
 
+	#define ELUNA_MAKE_REF_RL_METHODCLASSX(N)\
+	template<typename RL, ELUNA_METHODCLASSES_PARAM_LIST_##N >\
+	struct MethodClass##N<RL&, ELUNA_METHODCLASSES_SP_PARAM_LIST_##N> : GenericMethod\
+	{\
+		typedef RL& (T::* TFUNC)(ELUNA_PARAM_LIST_##N);\
+		TFUNC m_func;\
+		const char* m_name;\
+		MethodClass##N( const char* name, TFUNC func): m_func(func), m_name(name) {};\
+		~MethodClass##N(){};\
+		inline virtual int call(lua_State *L) {\
+			T* obj = read2cpp<T*>(L, 1);\
+			push2lua<RL&>(L, (obj->*m_func)(ELUNA_READ_METHOD_PARAM_LIST_##N));\
+			return 1;\
+		};\
+	};
+
 	#define ELUNA_MAKE_VOID_RL_METHODCLASSX(N) \
 	template<ELUNA_METHODCLASSES_PARAM_LIST_##N >\
 	struct MethodClass##N<void, ELUNA_METHODCLASSES_SP_PARAM_LIST_##N> : GenericMethod\
@@ -541,6 +546,17 @@ namespace ELuna
 	ELUNA_MAKE_METHODCLASSX(8)
 	ELUNA_MAKE_METHODCLASSX(9)
 
+	ELUNA_MAKE_REF_RL_METHODCLASSX(0)
+	ELUNA_MAKE_REF_RL_METHODCLASSX(1)
+	ELUNA_MAKE_REF_RL_METHODCLASSX(2)
+	ELUNA_MAKE_REF_RL_METHODCLASSX(3)
+	ELUNA_MAKE_REF_RL_METHODCLASSX(4)
+	ELUNA_MAKE_REF_RL_METHODCLASSX(5)
+	ELUNA_MAKE_REF_RL_METHODCLASSX(6)
+	ELUNA_MAKE_REF_RL_METHODCLASSX(7)
+	ELUNA_MAKE_REF_RL_METHODCLASSX(8)
+	ELUNA_MAKE_REF_RL_METHODCLASSX(9)
+
 	ELUNA_MAKE_VOID_RL_METHODCLASSX(0)
 	ELUNA_MAKE_VOID_RL_METHODCLASSX(1)
 	ELUNA_MAKE_VOID_RL_METHODCLASSX(2)
@@ -566,7 +582,6 @@ namespace ELuna
 	template<typename T>
 	inline int gc_obj(lua_State *L) {
 		// clean up
-		//printf("gc_obj: %s\n", ClassName<T>::getName());
 		UserData<T>** ud = static_cast<UserData<T>**>(luaL_checkudata(L, -1, ClassName<T>::getName()));
 		delete (*ud);
 		return 0;

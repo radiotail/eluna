@@ -184,6 +184,11 @@ public:
 		p = new TestObj("fuck pointer");
 		return p;
 	}
+
+	TestObj* testObjPointer2(TestObj* p) {
+		p->m_name = "TestObjPointer Changed";
+		return p;
+	}
 private:
 };
 
@@ -406,6 +411,7 @@ void testCPP(lua_State* L) {
 	ELuna::registerMethod<Test>(L, "testLuaTable", &Test::testLuaTable);
 	ELuna::registerMethod<Test>(L, "testObjPointer", &Test::testObjPointer);
 	ELuna::registerMethod<Test>(L, "testObjPointer1", &Test::testObjPointer1);
+	ELuna::registerMethod<Test>(L, "testObjPointer2", &Test::testObjPointer2);
 	ELuna::registerMethod<Test>(L, "testObj", &Test::testObj);
 	ELuna::registerMethod<Test>(L, "testObjRef", &Test::testObjRef);
 
@@ -482,17 +488,30 @@ void testLua(lua_State* L) {
 	printf("retFoo8: %d\n", retFoo8(1,2,3,4,5,6,7,8));
 	printf("retFoo9: %d\n", retFoo9(1,2,3,4,5,6,7,8,9));
 
-	TestObj* pObj = new TestObj("TestObj Pointer");
-	TestObj* pObj1 = luaTestObjPointer(pObj);
-	pObj1->print();
+	printf("luaTestObjPointer: \n");
+	TestObj pObj = TestObj("TestObjPointer");
+	TestObj* retPObj = luaTestObjPointer(&pObj);
+	pObj.print();
+	retPObj->print();
 
-	TestObj objRef("TestObj Ref");
-	TestObj& objRef1 = luaTestObjRef(objRef);
+	printf("luaTestObjRef1: \n");
+	TestObj objRef1("TestObjRef1");
+	TestObj& retObjRef1 = luaTestObjRef(&objRef1);
 	objRef1.print();
-
+	retObjRef1.print();
+	
+	printf("luaTestObjRef2: \n");
+	TestObj objRef2("TestObjRef2");
+	TestObj& retObjRef2 = luaTestObjRef(objRef2);
+	objRef2.print();
+	retObjRef2.print();
+	
+	printf("luaTestObj: \n");
 	TestObj obj("TestObj");
-	TestObj obj1 = luaTestObj(obj);
-	obj1.print();
+	TestObj retObj = luaTestObj(obj);
+	obj.print();
+	retObj.print();
+	printf("pass refrence the same as object!\n");
 }
 
 

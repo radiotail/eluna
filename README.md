@@ -29,8 +29,10 @@ how to register a class(using ELuna::registerClass), a method (using ELuna::regi
 a function(using ELuna::registerFunction) to lua, and how to register a lua 
 function(using ELuna::LuaFunction) or table(using ELuna::LuaTable) to cpp.
 
-```
-//sample.cpp #include <stdio.h> #include <string.h>
+```c++
+//sample.cpp 
+#include <stdio.h> 
+#include <string.h>
 #include "ELuna.h"
 
 //define a class
@@ -111,7 +113,7 @@ int main()
 }
 ```
 
-```
+```lua
 /////////////////////////////////////////////////////////////////////////
 //sample.lua
 --new a class
@@ -137,6 +139,9 @@ end
 luaTable = {"hello"}
 ```
 
+## ATTENTIONS
+It is the same as passing refrence or object to LuaFunction(Eluna will create a temporary object to pass). But you can pass pointer instead of refrence.
+
 ## BUILDS
 1. Install lua.
 2. Use premake4 to generate project files.
@@ -145,8 +150,4 @@ $ cd premake4
 $ premake4 action
 ```
 you can read this page:[Premake Quick Start](http://industriousone.com/premake-quick-start)
-
-## ATTENTIONS
-Transferring or returning pointer has best efficiency, followed by reference, the worst is transferring object.
-
 

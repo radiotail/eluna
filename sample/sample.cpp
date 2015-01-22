@@ -6,10 +6,10 @@ class CPPClass
 {
 public:
 	CPPClass(const char* name): m_name(name){
-		printf("%s Constructor!\n", name);
+		printf("%s %p Constructor!\n", name, this);
 	}
 	~CPPClass(){
-		printf("%s Destructor!\n", m_name);
+		printf("%s %p Destructor!\n", m_name, this);
 	}
 
 	//define method
@@ -20,6 +20,16 @@ public:
 	int cppSum(int a, int b){
 		return a + b;
 	}
+
+	void print() {
+		printf("%s: %p\n", m_name, this);
+	}
+
+	CPPClass& createRef(CPPClass& p) {
+		printf("%s %s %p %p createRef!\n", m_name, p.m_name, &p, this);
+		p.m_name = "ref";
+		return p;
+	} 
 private:
 	const char* m_name;
 };
@@ -39,6 +49,8 @@ void testCPP(lua_State* L) {
 	//register a method
 	ELuna::registerMethod<CPPClass>(L, "cppPrint", &CPPClass::cppPrint);
 	ELuna::registerMethod<CPPClass>(L, "cppSum", &CPPClass::cppSum);
+	ELuna::registerMethod<CPPClass, CPPClass&>(L, "createRef", &CPPClass::createRef);
+	ELuna::registerMethod<CPPClass>(L, "print", &CPPClass::print);
 
 	//register a function
 	ELuna::registerFunction(L, "cppPrint", &cppPrint);
@@ -76,3 +88,4 @@ int main()
 
 	return 0;
 }
+

@@ -79,20 +79,17 @@ function retFoo9(p1, p2, p3, p4, p5, p6, p7, p8, p9)
 end
 
 function luaTestObjPointer(pObj)
-	print("luaTestObjPointer:")
-	pObj:changeName("TestObj Pointer1")
+	pObj:changeName("TestObjPointer Changed")
 	return pObj
 end
 
 function luaTestObj(obj)
-	print("luaTestObj:")
-	obj:changeName("TestObj 1")
+	obj:changeName("TestObj Changed")
 	return obj
 end
 
 function luaTestObjRef(objRef)
-	print("luaTestObjRef:")
-	objRef:changeName("TestObj Ref1")
+	objRef:changeName("TestObjRef Changed")
 	return objRef
 end
 
@@ -161,6 +158,12 @@ pObj:print()
 local pObj = TestObj("TestObjPointer1")
 local a = cppTest:testObjPointer1(pObj)
 print("testObjPointer1: ", a, pObj)
+pObj:print()
+a:print()
+
+local pObj = TestObj("TestObjPointer2")
+local a = cppTest:testObjPointer2(pObj)
+print("testObjPointer2: ", a, pObj)
 pObj:print()
 a:print()
 

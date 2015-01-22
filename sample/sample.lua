@@ -1,5 +1,6 @@
 --new a class
 local cppClass = CPPClass("cppClass")
+cppClass:print()
 --call cpp method
 cppClass:cppPrint("Hello world!")
 print("CPPClass's cppSum:", cppClass:cppSum(1,2))
@@ -19,3 +20,8 @@ end
 
 --define table
 luaTable = {"hello"}
+
+local refClass = cppClass:createRef(cppClass)
+print("createRef: ", refClass, cppClass)
+cppClass:print()
+refClass:print()
