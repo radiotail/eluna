@@ -362,6 +362,27 @@ int retFoo9(int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8, int 
 	return p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9;
 }
 
+TestObj retObj(TestObj p) {
+	p.m_name = "RetObj Change";
+	return p;
+}
+
+TestObj& retObjRef(TestObj& p) {
+	p.m_name = "RetObjRef Changed";
+	return p;
+}
+
+TestObj* retObjPointer1(TestObj* p) {
+	p->m_name = "RetObjPointer Changed";
+	p = new TestObj("fuck pointer");
+	return p;
+}
+
+TestObj* retObjPointer(TestObj* p) {
+	p->m_name = "RetObjPointer Changed";
+	return p;
+}
+
 void testCPP(lua_State* L) {
 	//register a class and it's constructor. indicate all constructor's param type
 	ELuna::registerClass<Test>(L, "Test0", ELuna::constructor<Test>);
@@ -416,16 +437,31 @@ void testCPP(lua_State* L) {
 	ELuna::registerMethod<Test>(L, "testObjRef", &Test::testObjRef);
 
 	//register a function
-	ELuna::registerFunction(L, "foo0", &foo0);
-	ELuna::registerFunction(L, "foo1", &foo1);
-	ELuna::registerFunction(L, "foo2", &foo2);
-	ELuna::registerFunction(L, "foo3", &foo3);
-	ELuna::registerFunction(L, "foo4", &foo4);
-	ELuna::registerFunction(L, "foo5", &foo5);
-	ELuna::registerFunction(L, "foo6", &foo6);
-	ELuna::registerFunction(L, "foo7", &foo7);
-	ELuna::registerFunction(L, "foo8", &foo8);
-	ELuna::registerFunction(L, "foo9", &foo9);
+	ELuna::registerFunction(L, "cppFoo0", &foo0);
+	ELuna::registerFunction(L, "cppFoo1", &foo1);
+	ELuna::registerFunction(L, "cppFoo2", &foo2);
+	ELuna::registerFunction(L, "cppFoo3", &foo3);
+	ELuna::registerFunction(L, "cppFoo4", &foo4);
+	ELuna::registerFunction(L, "cppFoo5", &foo5);
+	ELuna::registerFunction(L, "cppFoo6", &foo6);
+	ELuna::registerFunction(L, "cppFoo7", &foo7);
+	ELuna::registerFunction(L, "cppFoo8", &foo8);
+	ELuna::registerFunction(L, "cppFoo9", &foo9);
+
+	ELuna::registerFunction(L, "cppRetFoo0", &retFoo0);
+	ELuna::registerFunction(L, "cppRetFoo1", &retFoo1);
+	ELuna::registerFunction(L, "cppRetFoo2", &retFoo2);
+	ELuna::registerFunction(L, "cppRetFoo3", &retFoo3);
+	ELuna::registerFunction(L, "cppRetFoo4", &retFoo4);
+	ELuna::registerFunction(L, "cppRetFoo5", &retFoo5);
+	ELuna::registerFunction(L, "cppRetFoo6", &retFoo6);
+	ELuna::registerFunction(L, "cppRetFoo7", &retFoo7);
+	ELuna::registerFunction(L, "cppRetFoo8", &retFoo8);
+	ELuna::registerFunction(L, "cppRetFoo9", &retFoo9);
+	ELuna::registerFunction(L, "cppRetObj", &retObj);
+	ELuna::registerFunction(L, "cppRetObjRef", &retObjRef);
+	ELuna::registerFunction(L, "cppRetObjPointer", &retObjPointer);
+	ELuna::registerFunction(L, "cppRetObjPointer1", &retObjPointer1);
 
 	//test constructor
 	ELuna::registerClass<Test1>(L, "Test1", ELuna::constructor<Test1, int>);
@@ -511,7 +547,7 @@ void testLua(lua_State* L) {
 	TestObj retObj = luaTestObj(obj);
 	obj.print();
 	retObj.print();
-	printf("pass refrence the same as object!\n");
+	printf("pass refrence to luaFunction the same as object!\n");
 }
 
 

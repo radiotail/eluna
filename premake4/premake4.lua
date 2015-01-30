@@ -19,7 +19,7 @@ solution "ELuna"
 	
     files {"../eluna/ELuna.h", "../sample/sample.cpp"}
 	
-	links {"lua51"}
+	links {"lua51"} -- fix it
 
 	project "interface"
 	kind "ConsoleApp"
@@ -30,5 +30,5 @@ solution "ELuna"
 	
     files {"../eluna/ELuna.h", "../sample/testInterface.cpp"}
 	
-	links {"lua51"}
+	links {"lua51"} -- fix it
 
