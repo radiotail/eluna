@@ -105,6 +105,10 @@ namespace ELuna
 				index = lua_gettop(L) + index + 1;
 			}
 
+			if( !lua_istable(L, index) ) {
+				luaL_argerror(L, index, "table expected");
+			}
+
 			m_luaState = L;
 			m_stackPos = index;
 			m_tableAdd = lua_topointer(L, index);
@@ -311,29 +315,43 @@ namespace ELuna
 
 	template<typename T> inline T read2cpp(lua_State *L, int index) {
 		if(!lua_isuserdata(L,index)) {
-			lua_pushstring(L, "this arg is not a userdata!\n");
-			lua_error(L);
+			luaL_argerror(L, index, "userdata expected");
 		}
 
 		return convert2CppType<T>::convertType(L, index);
 	};
 	template<>	inline void			read2cpp(lua_State *L, int index) {};
-	template<>	inline bool         read2cpp(lua_State *L, int index) { return lua_toboolean(L, index) ? true : false;};
-	template<>	inline char*		read2cpp(lua_State *L, int index) { return (char*)lua_tostring(L, index); };
-	template<>	inline const char*	read2cpp(lua_State *L, int index) { return (const char*)lua_tostring(L, index);};
-	template<>	inline char			read2cpp(lua_State *L, int index) { return (char)lua_tonumber(L, index);};
-	template<>	inline unsigned char  read2cpp(lua_State *L, int index) { return (unsigned char)lua_tonumber(L, index);};
-	template<>	inline short		read2cpp(lua_State *L, int index) { return (short)lua_tonumber(L, index);};
-	template<>	inline unsigned short read2cpp(lua_State *L, int index) { return (unsigned short)lua_tonumber(L, index);};
-	template<>	inline long			read2cpp(lua_State *L, int index) { return (long)lua_tonumber(L, index);};
-	template<>	inline unsigned long  read2cpp(lua_State *L, int index) { return (unsigned long)lua_tonumber(L, index);};
-	template<>	inline int			read2cpp(lua_State *L, int index) { return (int)lua_tonumber(L, index);};
-	template<>	inline unsigned int	read2cpp(lua_State *L, int index) { return (unsigned int)lua_tonumber(L, index);};
-	template<>	inline long long    read2cpp(lua_State *L, int index) { return (long long)lua_tonumber(L, index);};
-	template<>  inline unsigned long long  read2cpp(lua_State *L, int index) { return (unsigned long long)lua_tonumber(L, index);};
-	template<>	inline float		read2cpp(lua_State *L, int index) { return (float)lua_tonumber(L, index);};
-	template<>	inline double		read2cpp(lua_State *L, int index) { return (double)lua_tonumber(L, index);};
-	template<>	inline LuaString	read2cpp(lua_State *L, int index) { LuaString ls; ls.str = (char*)lua_tolstring(L, index, &ls.len); return ls;};
+	template<>	inline bool         read2cpp(lua_State *L, int index) { return lua_toboolean(L, index) == 1;};
+
+#if !defined(LUA_VERSION_NUM) || LUA_VERSION_NUM < 503
+	template<>	inline char			read2cpp(lua_State *L, int index) { return (char)luaL_checknumber(L, index);};
+	template<>	inline unsigned char  read2cpp(lua_State *L, int index) { return (unsigned char)luaL_checknumber(L, index);};
+	template<>	inline short		read2cpp(lua_State *L, int index) { return (short)luaL_checknumber(L, index);};
+	template<>	inline unsigned short read2cpp(lua_State *L, int index) { return (unsigned short)luaL_checknumber(L, index);};
+	template<>	inline int			read2cpp(lua_State *L, int index) { return (int)luaL_checknumber(L, index);};
+	template<>	inline unsigned int	read2cpp(lua_State *L, int index) { return (unsigned int)luaL_checknumber(L, index);};
+	template<>	inline long			read2cpp(lua_State *L, int index) { return (long)luaL_checknumber(L, index);};
+	template<>	inline unsigned long  read2cpp(lua_State *L, int index) { return (unsigned long)luaL_checknumber(L, index);};
+	template<>	inline long long    read2cpp(lua_State *L, int index) { return (long long)luaL_checknumber(L, index);};
+	template<>  inline unsigned long long  read2cpp(lua_State *L, int index) { return (unsigned long long)luaL_checknumber(L, index);};
+#else
+	template<>	inline char			read2cpp(lua_State *L, int index) { return (char)luaL_checkinteger(L, index);};
+	template<>	inline unsigned char  read2cpp(lua_State *L, int index) { return (unsigned char)luaL_checkinteger(L, index);};
+	template<>	inline short		read2cpp(lua_State *L, int index) { return (short)luaL_checkinteger(L, index);};
+	template<>	inline unsigned short read2cpp(lua_State *L, int index) { return (unsigned short)luaL_checkinteger(L, index);};
+	template<>	inline int			read2cpp(lua_State *L, int index) { return (int)luaL_checkinteger(L, index);};
+	template<>	inline unsigned int	read2cpp(lua_State *L, int index) { return (unsigned int)luaL_checkinteger(L, index);};
+	template<>	inline long			read2cpp(lua_State *L, int index) { return (long)luaL_checkinteger(L, index);};
+	template<>	inline unsigned long  read2cpp(lua_State *L, int index) { return (unsigned long)luaL_checkinteger(L, index);};
+	template<>	inline long long    read2cpp(lua_State *L, int index) { return (long long)luaL_checkinteger(L, index);};
+	template<>  inline unsigned long long  read2cpp(lua_State *L, int index) { return (unsigned long long)luaL_checkinteger(L, index);};
+#endif
+
+	template<>	inline float		read2cpp(lua_State *L, int index) { return (float)luaL_checknumber(L, index);};
+	template<>	inline double		read2cpp(lua_State *L, int index) { return (double)luaL_checknumber(L, index);};
+	template<>	inline char*		read2cpp(lua_State *L, int index) { return (char*)luaL_checkstring(L, index); };
+	template<>	inline const char*	read2cpp(lua_State *L, int index) { return (const char*)luaL_checkstring(L, index);};
+	template<>	inline LuaString	read2cpp(lua_State *L, int index) { LuaString ls; ls.str = (char*)luaL_checklstring(L, index, &ls.len); return ls;};
 	template<>	inline LuaTable	    read2cpp(lua_State *L, int index) { return LuaTable(L, index);};
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -373,21 +391,36 @@ namespace ELuna
 	};
 
 	template<typename T> inline void push2lua(lua_State *L, T ret) { convert2LuaType<T>::convertType(L, ret);};
+	template<> inline void push2lua(lua_State *L, bool ret) { lua_pushboolean(L, ret);};
+
+#if !defined(LUA_VERSION_NUM) || LUA_VERSION_NUM < 503
 	template<> inline void push2lua(lua_State *L, char ret) { lua_pushnumber(L, ret);};
 	template<> inline void push2lua(lua_State *L, unsigned char ret) { lua_pushnumber(L, ret);};
 	template<> inline void push2lua(lua_State *L, short ret) { lua_pushnumber(L, ret);};
 	template<> inline void push2lua(lua_State *L, unsigned short ret) { lua_pushnumber(L, ret);};
-	template<> inline void push2lua(lua_State *L, long ret) { lua_pushnumber(L, ret);};
-	template<> inline void push2lua(lua_State *L, unsigned long ret) { lua_pushnumber(L, ret);};
 	template<> inline void push2lua(lua_State *L, int ret) { lua_pushnumber(L, ret);};
 	template<> inline void push2lua(lua_State *L, unsigned int ret) { lua_pushnumber(L, ret);};
+	template<> inline void push2lua(lua_State *L, long ret) { lua_pushnumber(L, ret);};
+	template<> inline void push2lua(lua_State *L, unsigned long ret) { lua_pushnumber(L, ret);};
+	template<> inline void push2lua(lua_State *L, long long ret) { lua_pushnumber(L, (lua_Number)ret);};
+	template<> inline void push2lua(lua_State *L, unsigned long long ret) { lua_pushnumber(L, (lua_Number)ret);};
+#else
+	template<> inline void push2lua(lua_State *L, char ret) { lua_pushinteger(L, ret);};
+	template<> inline void push2lua(lua_State *L, unsigned char ret) { lua_pushinteger(L, ret);};
+	template<> inline void push2lua(lua_State *L, short ret) { lua_pushinteger(L, ret);};
+	template<> inline void push2lua(lua_State *L, unsigned short ret) { lua_pushinteger(L, ret);};
+	template<> inline void push2lua(lua_State *L, int ret) { lua_pushinteger(L, ret);};
+	template<> inline void push2lua(lua_State *L, unsigned int ret) { lua_pushinteger(L, ret);};
+	template<> inline void push2lua(lua_State *L, long ret) { lua_pushinteger(L, ret);};
+	template<> inline void push2lua(lua_State *L, unsigned long ret) { lua_pushinteger(L, ret);};
+	template<> inline void push2lua(lua_State *L, long long ret) { lua_pushinteger(L, ret);};
+	template<> inline void push2lua(lua_State *L, unsigned long long ret) { lua_pushinteger(L, ret);};
+#endif
+
 	template<> inline void push2lua(lua_State *L, float ret) { lua_pushnumber(L, ret);};
 	template<> inline void push2lua(lua_State *L, double ret) { lua_pushnumber(L, ret);};
 	template<> inline void push2lua(lua_State *L, char* ret) { lua_pushstring(L, ret);};
 	template<> inline void push2lua(lua_State *L, const char* ret) { lua_pushstring(L, ret);};
-	template<> inline void push2lua(lua_State *L, bool ret) { lua_pushboolean(L, ret);};
-	template<> inline void push2lua(lua_State *L, long long ret) { return lua_pushnumber(L, (LUA_NUMBER)ret);};
-	template<> inline void push2lua(lua_State *L, unsigned long long ret) { return lua_pushnumber(L, (LUA_NUMBER)ret);};
 	template<> inline void push2lua(lua_State *L, LuaString ret) {lua_pushlstring(L, ret.str, ret.len);};
 	template<> inline void push2lua(lua_State *L, LuaTable ret) { if(ret.m_refCount) lua_pushvalue(L, ret.m_stackPos); else lua_pushnil(L);};
 
@@ -1619,7 +1652,6 @@ namespace ELuna
 
 		luaopen_base(L);
 		luaL_openlibs(L);
-		luaopen_debug(L);
 
 		return L;
 	}
