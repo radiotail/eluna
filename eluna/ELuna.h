@@ -1,14 +1,35 @@
-//////////////////////////////////////////////////////////////////////////////////////
-// ELuna - Extended Luna
-//
-// ELuna is a simple and light library to bind C/C++ and Lua, which just
-// depends on Lua library. It provides some simple API to bind cpp class,
-// method, function or to bind lua function, table. You can include ELuna
-// and Lua in your project to use.
-//
-// Mail: radiotail86@gmail.com
-// About the details of license, please read license.txt
-//////////////////////////////////////////////////////////////////////////////////////
+/*////////////////////////////////////////////////////////////////////////////////////
+ELuna - Extended Luna
+
+ELuna is a simple and light library to bind C/C++ and Lua, which just
+depends on Lua library. It provides some simple API to bind cpp class,
+method, function or to bind lua function, table. You can include ELuna
+and Lua in your project to use.
+
+Mail: radiotail86@gmail.com
+ 
+The MIT License
+
+Copyright (C) 2012 rick
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/////////////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _LUA_ELUNA_H_
@@ -351,6 +372,7 @@ namespace ELuna
 	template<>	inline double		read2cpp(lua_State *L, int index) { return (double)luaL_checknumber(L, index);};
 	template<>	inline char*		read2cpp(lua_State *L, int index) { return (char*)luaL_checkstring(L, index); };
 	template<>	inline const char*	read2cpp(lua_State *L, int index) { return (const char*)luaL_checkstring(L, index);};
+	template<>  inline std::string  read2cpp(lua_State *L, int index) { std::string str(luaL_checkstring(L, index)); return str;};
 	template<>	inline LuaString	read2cpp(lua_State *L, int index) { LuaString ls; ls.str = (char*)luaL_checklstring(L, index, &ls.len); return ls;};
 	template<>	inline LuaTable	    read2cpp(lua_State *L, int index) { return LuaTable(L, index);};
 
@@ -421,6 +443,7 @@ namespace ELuna
 	template<> inline void push2lua(lua_State *L, double ret) { lua_pushnumber(L, ret);};
 	template<> inline void push2lua(lua_State *L, char* ret) { lua_pushstring(L, ret);};
 	template<> inline void push2lua(lua_State *L, const char* ret) { lua_pushstring(L, ret);};
+	template<> inline void push2lua(lua_State *L, std::string ret) {lua_pushstring(L, ret.c_str());};
 	template<> inline void push2lua(lua_State *L, LuaString ret) {lua_pushlstring(L, ret.str, ret.len);};
 	template<> inline void push2lua(lua_State *L, LuaTable ret) { if(ret.m_refCount) lua_pushvalue(L, ret.m_stackPos); else lua_pushnil(L);};
 

@@ -160,6 +160,10 @@ public:
 		return p;
 	}
 
+	std::string testStdString(std::string p) {
+		return p;
+	}
+
 	ELuna::LuaTable testLuaTable(ELuna::LuaTable p) {
 		p.set(2, "world");
 		return p;
@@ -181,7 +185,7 @@ public:
 
 	TestObj* testObjPointer1(TestObj* p) {
 		p->m_name = "TestObjPointer Changed";
-		p = new TestObj("fuck pointer");
+		p = new TestObj("fuck pointer");  // will memory leak, need delete. c new, c delete
 		return p;
 	}
 
@@ -374,7 +378,7 @@ TestObj& retObjRef(TestObj& p) {
 
 TestObj* retObjPointer1(TestObj* p) {
 	p->m_name = "RetObjPointer Changed";
-	p = new TestObj("fuck pointer");
+	p = new TestObj("fuck pointer");  // will memory leak, need delete. c new, c delete
 	return p;
 }
 
@@ -421,6 +425,7 @@ void testCPP(lua_State* L) {
 	ELuna::registerMethod<Test>(L, "testLong", &Test::testLong);
 	ELuna::registerMethod<Test>(L, "testLongLong", &Test::testLongLong);
 	ELuna::registerMethod<Test>(L, "testLuaString", &Test::testLuaString);
+	ELuna::registerMethod<Test>(L, "testStdString", &Test::testStdString);
 	ELuna::registerMethod<Test>(L, "testPChar", &Test::testPChar);
 	ELuna::registerMethod<Test>(L, "testPConstChar", &Test::testPConstChar);
 	ELuna::registerMethod<Test>(L, "testShort", &Test::testShort);

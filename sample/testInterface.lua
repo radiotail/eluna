@@ -145,6 +145,7 @@ print("testULongLong: ", cppTest:testULongLong(-1))
 print("testFloat: ", cppTest:testFloat(0.33))
 print("testDouble: ", cppTest:testDouble(0.33))
 print("testLuaString: ", cppTest:testLuaString("hello world"))
+print("testStdString: ", cppTest:testStdString("hello world"))
 
 local table = {"hello"}
 local retTable = cppTest:testLuaTable(table)
