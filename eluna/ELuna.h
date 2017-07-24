@@ -35,6 +35,7 @@ THE SOFTWARE.
 #ifndef _LUA_ELUNA_H_
 #define _LUA_ELUNA_H_
 
+#include <string>
 #include <vector>
 #include <assert.h>
 
