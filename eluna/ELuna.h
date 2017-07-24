@@ -496,8 +496,6 @@ namespace ELuna
 		static Function_Vector m_CPPFunctions;
 		static Method_Vector   m_CPPMethods;
 	};
-	Function_Vector CPPGarbage::m_CPPFunctions;
-	Method_Vector   CPPGarbage::m_CPPMethods;
 
 	///////////////////////////////////////////////////////////////////////////////
 	// bind cpp method
