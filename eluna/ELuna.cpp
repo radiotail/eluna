@@ -36,7 +36,6 @@ THE SOFTWARE.
 
 namespace ELuna
 {
-	Function_Vector CPPGarbage::m_CPPFunctions;
-	Method_Vector   CPPGarbage::m_CPPMethods;
+	_CPPGarbageDataMap CPPGarbage::m_CPPDataMap;
 } // namespace ELuna
 

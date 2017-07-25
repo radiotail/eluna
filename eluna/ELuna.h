@@ -37,6 +37,7 @@ THE SOFTWARE.
 
 #include <string>
 #include <vector>
+#include <map>
 #include <assert.h>
 
 extern "C" {
@@ -479,12 +480,12 @@ namespace ELuna
 	typedef std::vector<GenericFunction*> Function_Vector;
 	typedef std::vector<GenericMethod*>   Method_Vector;
 
-	struct CPPGarbage
+	struct _CPPGarbageData
 	{
-		inline static void pushMethod(GenericMethod* method) { m_CPPMethods.push_back(method);};
-		inline static void pushFunction(GenericFunction* function) { m_CPPFunctions.push_back(function);};
-
-		inline static void release() {
+		Function_Vector m_CPPFunctions;
+		Method_Vector   m_CPPMethods;
+		~_CPPGarbageData()
+		{
 			for (Function_Vector::iterator itr = m_CPPFunctions.begin(); itr != m_CPPFunctions.end(); ++itr) {
 				delete *itr;
 			}
@@ -493,9 +494,18 @@ namespace ELuna
 				delete *itr;
 			}
 		}
+	};
+	typedef std::map<lua_State*, _CPPGarbageData> _CPPGarbageDataMap;
+	struct CPPGarbage
+	{
+		inline static void pushMethod(lua_State *L, GenericMethod* method) { m_CPPDataMap[L].m_CPPMethods.push_back(method);};
+		inline static void pushFunction(lua_State *L, GenericFunction* function) { m_CPPDataMap[L].m_CPPFunctions.push_back(function);};
+
+		inline static void release(lua_State *L) {
+			m_CPPDataMap.erase(L);
+		}
 	private:
-		static Function_Vector m_CPPFunctions;
-		static Method_Vector   m_CPPMethods;
+		static _CPPGarbageDataMap m_CPPDataMap;
 	};
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -743,7 +753,7 @@ namespace ELuna
 
 		if(lua_istable(L, -1)) {
 			MethodClass0<RL, T>* method = new MethodClass0<RL, T>(name, func);
-			CPPGarbage::pushMethod(method);
+			CPPGarbage::pushMethod(L, method);
 
 			lua_pushstring(L, name);
 			lua_pushlightuserdata(L, method);
@@ -761,7 +771,7 @@ namespace ELuna
 
 		if(lua_istable(L, -1)) {
 			MethodClass1<RL, T, P1>* method = new MethodClass1<RL, T, P1>(name, func);
-			CPPGarbage::pushMethod(method);
+			CPPGarbage::pushMethod(L, method);
 
 			lua_pushstring(L, name);
 			lua_pushlightuserdata(L, method);
@@ -779,7 +789,7 @@ namespace ELuna
 
 		if(lua_istable(L, -1)) {
 			MethodClass2<RL, T, P1, P2>* method = new MethodClass2<RL, T, P1, P2>(name, func);
-			CPPGarbage::pushMethod(method);
+			CPPGarbage::pushMethod(L, method);
 
 			lua_pushstring(L, name);
 			lua_pushlightuserdata(L, method);
@@ -797,7 +807,7 @@ namespace ELuna
 
 		if(lua_istable(L, -1)) {
 			MethodClass3<RL, T, P1, P2, P3>* method = new MethodClass3<RL, T, P1, P2, P3>(name, func);
-			CPPGarbage::pushMethod(method);
+			CPPGarbage::pushMethod(L, method);
 
 			lua_pushstring(L, name);
 			lua_pushlightuserdata(L, method);
@@ -815,7 +825,7 @@ namespace ELuna
 
 		if(lua_istable(L, -1)) {
 			MethodClass4<RL, T, P1, P2, P3, P4>* method = new MethodClass4<RL, T, P1, P2, P3, P4>(name, func);
-			CPPGarbage::pushMethod(method);
+			CPPGarbage::pushMethod(L, method);
 
 			lua_pushstring(L, name);
 			lua_pushlightuserdata(L, method);
@@ -833,7 +843,7 @@ namespace ELuna
 
 		if(lua_istable(L, -1)) {
 			MethodClass5<RL, T, P1, P2, P3, P4, P5>* method = new MethodClass5<RL, T, P1, P2, P3, P4, P5>(name, func);
-			CPPGarbage::pushMethod(method);
+			CPPGarbage::pushMethod(L, method);
 
 			lua_pushstring(L, name);
 			lua_pushlightuserdata(L, method);
@@ -851,7 +861,7 @@ namespace ELuna
 
 		if(lua_istable(L, -1)) {
 			MethodClass6<RL, T, P1, P2, P3, P4, P5, P6>* method = new MethodClass6<RL, T, P1, P2, P3, P4, P5, P6>(name, func);
-			CPPGarbage::pushMethod(method);
+			CPPGarbage::pushMethod(L, method);
 
 			lua_pushstring(L, name);
 			lua_pushlightuserdata(L, method);
@@ -869,7 +879,7 @@ namespace ELuna
 
 		if(lua_istable(L, -1)) {
 			MethodClass7<RL, T, P1, P2, P3, P4, P5, P6, P7>* method = new MethodClass7<RL, T, P1, P2, P3, P4, P5, P6, P7>(name, func);
-			CPPGarbage::pushMethod(method);
+			CPPGarbage::pushMethod(L, method);
 
 			lua_pushstring(L, name);
 			lua_pushlightuserdata(L, method);
@@ -887,7 +897,7 @@ namespace ELuna
 
 		if(lua_istable(L, -1)) {
 			MethodClass8<RL, T, P1, P2, P3, P4, P5, P6, P7, P8>* method = new MethodClass8<RL, T, P1, P2, P3, P4, P5, P6, P7, P8>(name, func);
-			CPPGarbage::pushMethod(method);
+			CPPGarbage::pushMethod(L, method);
 
 			lua_pushstring(L, name);
 			lua_pushlightuserdata(L, method);
@@ -905,7 +915,7 @@ namespace ELuna
 
 		if(lua_istable(L, -1)) {
 			MethodClass9<RL, T, P1, P2, P3, P4, P5, P6, P7, P8, P9>* method = new MethodClass9<RL, T, P1, P2, P3, P4, P5, P6, P7, P8, P9>(name, func);
-			CPPGarbage::pushMethod(method);
+			CPPGarbage::pushMethod(L, method);
 
 			lua_pushstring(L, name);
 			lua_pushlightuserdata(L, method);
@@ -1063,7 +1073,7 @@ namespace ELuna
 		lua_pushcclosure(L, proxyFunctionCall, 1);
 		lua_setglobal(L, name);
 
-		CPPGarbage::pushFunction(pFunction);
+		CPPGarbage::pushFunction(L, pFunction);
 	}
 
 	template<typename RL, typename P1>
@@ -1074,7 +1084,7 @@ namespace ELuna
 		lua_pushcclosure(L, proxyFunctionCall, 1);
 		lua_setglobal(L, name);
 
-		CPPGarbage::pushFunction(pFunction);
+		CPPGarbage::pushFunction(L, pFunction);
 	}
 
 	template<typename RL, typename P1, typename P2>
@@ -1085,7 +1095,7 @@ namespace ELuna
 		lua_pushcclosure(L, proxyFunctionCall, 1);
 		lua_setglobal(L, name);
 
-		CPPGarbage::pushFunction(pFunction);
+		CPPGarbage::pushFunction(L, pFunction);
 	}
 
 	template<typename RL, typename P1, typename P2, typename P3>
@@ -1096,7 +1106,7 @@ namespace ELuna
 		lua_pushcclosure(L, proxyFunctionCall, 1);
 		lua_setglobal(L, name);
 
-		CPPGarbage::pushFunction(pFunction);
+		CPPGarbage::pushFunction(L, pFunction);
 	}
 
 	template<typename RL, typename P1, typename P2, typename P3, typename P4>
@@ -1107,7 +1117,7 @@ namespace ELuna
 		lua_pushcclosure(L, proxyFunctionCall, 1);
 		lua_setglobal(L, name);
 
-		CPPGarbage::pushFunction(pFunction);
+		CPPGarbage::pushFunction(L, pFunction);
 	}
 
 	template<typename RL, typename P1, typename P2, typename P3, typename P4, typename P5>
@@ -1118,7 +1128,7 @@ namespace ELuna
 		lua_pushcclosure(L, proxyFunctionCall, 1);
 		lua_setglobal(L, name);
 
-		CPPGarbage::pushFunction(pFunction);
+		CPPGarbage::pushFunction(L, pFunction);
 	}
 
 	template<typename RL, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6>
@@ -1129,7 +1139,7 @@ namespace ELuna
 		lua_pushcclosure(L, proxyFunctionCall, 1);
 		lua_setglobal(L, name);
 
-		CPPGarbage::pushFunction(pFunction);
+		CPPGarbage::pushFunction(L, pFunction);
 	}
 
 	template<typename RL, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7>
@@ -1140,7 +1150,7 @@ namespace ELuna
 		lua_pushcclosure(L, proxyFunctionCall, 1);
 		lua_setglobal(L, name);
 
-		CPPGarbage::pushFunction(pFunction);
+		CPPGarbage::pushFunction(L, pFunction);
 	}
 
 	template<typename RL, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7, typename P8>
@@ -1151,7 +1161,7 @@ namespace ELuna
 		lua_pushcclosure(L, proxyFunctionCall, 1);
 		lua_setglobal(L, name);
 
-		CPPGarbage::pushFunction(pFunction);
+		CPPGarbage::pushFunction(L, pFunction);
 	}
 
 	template<typename RL, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7, typename P8, typename P9>
@@ -1162,7 +1172,7 @@ namespace ELuna
 		lua_pushcclosure(L, proxyFunctionCall, 1);
 		lua_setglobal(L, name);
 
-		CPPGarbage::pushFunction(pFunction);
+		CPPGarbage::pushFunction(L, pFunction);
 	}
 
 	inline void traceStack(lua_State* L, int n) {
@@ -1679,7 +1689,7 @@ namespace ELuna
 	}
 
 	inline void closeLua(lua_State* L) {
-		CPPGarbage::release();
+		CPPGarbage::release(L);
 		lua_close(L);
 	}
 
