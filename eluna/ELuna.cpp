@@ -36,6 +36,6 @@ THE SOFTWARE.
 
 namespace ELuna
 {
-	_CPPGarbageDataMap CPPGarbage::m_CPPDataMap;
+	CPPGarbageDataMap CPPGarbage::m_CPPDataMap;
 } // namespace ELuna
 

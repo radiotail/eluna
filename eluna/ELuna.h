@@ -477,15 +477,15 @@ namespace ELuna
 	///////////////////////////////////////////////////////////////////////////////
 	// CPPGarbage manager methodClass and functionClass obj pointer
 	///////////////////////////////////////////////////////////////////////////////
-	typedef std::vector<GenericFunction*> Function_Vector;
-	typedef std::vector<GenericMethod*>   Method_Vector;
-
-	struct _CPPGarbageData
+	struct CPPGarbageData
 	{
+		typedef std::vector<GenericFunction*> Function_Vector;
+		typedef std::vector<GenericMethod*>   Method_Vector;
+
 		Function_Vector m_CPPFunctions;
 		Method_Vector   m_CPPMethods;
-		~_CPPGarbageData()
-		{
+
+		~CPPGarbageData() {
 			for (Function_Vector::iterator itr = m_CPPFunctions.begin(); itr != m_CPPFunctions.end(); ++itr) {
 				delete *itr;
 			}
@@ -495,7 +495,8 @@ namespace ELuna
 			}
 		}
 	};
-	typedef std::map<lua_State*, _CPPGarbageData> _CPPGarbageDataMap;
+
+	typedef std::map<lua_State*, CPPGarbageData> CPPGarbageDataMap;
 	struct CPPGarbage
 	{
 		inline static void pushMethod(lua_State *L, GenericMethod* method) { m_CPPDataMap[L].m_CPPMethods.push_back(method);};
@@ -505,7 +506,7 @@ namespace ELuna
 			m_CPPDataMap.erase(L);
 		}
 	private:
-		static _CPPGarbageDataMap m_CPPDataMap;
+		static CPPGarbageDataMap m_CPPDataMap;
 	};
 
 	///////////////////////////////////////////////////////////////////////////////
