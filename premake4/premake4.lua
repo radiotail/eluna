@@ -17,7 +17,7 @@ solution "ELuna"
 	includedirs {"../"}
 	includedirs {"../eluna"}
 	
-    files {"../eluna/ELuna.h", "../eluna/ELuna.cpp", "../sample/sample.cpp"}
+    files {"../eluna/ELuna.h", "../sample/sample.cpp"}
 	
 	links {"lua51"} -- fix it
 
@@ -28,7 +28,7 @@ solution "ELuna"
 	includedirs {"../"}
 	includedirs {"../eluna"}
 	
-    files {"../eluna/ELuna.h", "../eluna/ELuna.cpp", "../sample/testInterface.cpp"}
+    files {"../eluna/ELuna.h", "../sample/testInterface.cpp"}
 	
 	links {"lua51"} -- fix it
 
