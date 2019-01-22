@@ -315,7 +315,7 @@ namespace ELuna
 	template<typename T>
 	struct convert2CppType {
 		inline static T convertType(lua_State* L, int index){
-			UserData<T>** ud = static_cast<UserData<T>**>(lua_touserdata(L, index));
+            UserData<T>** ud = static_cast<UserData<T>**>(luaL_checkudata(L, index, ClassName<T>::getName()));
 			return *((*ud)->m_objPtr);
 		}
 	};
@@ -323,7 +323,7 @@ namespace ELuna
 	template<typename T>
 	struct convert2CppType<T*> {
 		inline static T* convertType(lua_State* L, int index){
-			UserData<T>** ud = static_cast<UserData<T>**>(lua_touserdata(L, index));
+            UserData<T>** ud = static_cast<UserData<T>**>(luaL_checkudata(L, index, ClassName<T>::getName()));
 			return (*ud)->m_objPtr;
 		}
 	};
@@ -331,7 +331,7 @@ namespace ELuna
 	template<typename T>
 	struct convert2CppType<T&> {
 		inline static T& convertType(lua_State* L, int index){
-			UserData<T>** ud = static_cast<UserData<T>**>(lua_touserdata(L, index));
+            UserData<T>** ud = static_cast<UserData<T>**>(luaL_checkudata(L, index, ClassName<T>::getName()));
 			return *((*ud)->m_objPtr);
 		}
 	};

@@ -8,6 +8,8 @@ print("CPPClass's cppSum:", cppClass:cppSum(1,2))
 --call cpp function
 cppPrint("Hello world!")
 print("cppSum:", cppSum(1,2))
+print("testnil: ", testnil(cppClass))
+-- print("testnil: ", testnil(nil))
 
 --define lua function
 function luaPrint(str)

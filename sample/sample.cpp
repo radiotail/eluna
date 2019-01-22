@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "ELuna.h"
 
+
 //define a class
 class CPPClass
 {
@@ -43,6 +44,12 @@ int cppSum(int a, int b){
 	return a + b;
 }
 
+CPPClass* testnil(CPPClass* c)
+{
+    printf("CPPClass c: %p\n", c);
+    return nullptr;
+}
+
 void testCPP(lua_State* L) {
 	//register a class and it's constructor. indicate all constructor's param type
 	ELuna::registerClass<CPPClass>(L, "CPPClass", ELuna::constructor<CPPClass, const char* >);
@@ -53,8 +60,9 @@ void testCPP(lua_State* L) {
 	ELuna::registerMethod<CPPClass>(L, "print", &CPPClass::print);
 
 	//register a function
-	ELuna::registerFunction(L, "cppPrint", &cppPrint);
-	ELuna::registerFunction(L, "cppSum", &cppSum);
+	ELuna::registerFunction(L, "cppPrint", cppPrint);
+	ELuna::registerFunction(L, "cppSum", cppSum);
+    ELuna::registerFunction(L, "testnil", testnil);
 }
 
 void testLua(lua_State* L) {
@@ -85,6 +93,8 @@ int main()
 
 	testLua(L);
 	ELuna::closeLua(L);
+
+	getchar();
 
 	return 0;
 }

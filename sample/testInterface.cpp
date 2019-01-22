@@ -568,5 +568,7 @@ int main()
 	testLua(L);
 	ELuna::closeLua(L);
 
+	getchar();
+
 	return 0;
 }
