@@ -295,15 +295,17 @@ namespace ELuna
 		return LuaTable(m_luaState, -1);
 	}
 
+	template <typename T>
 	struct UserData {
-		UserData(void* objPtr): m_objPtr(objPtr) {};
+        UserData(T* objPtr) : m_objPtr(objPtr){};
         virtual ~UserData() {};
-		void* m_objPtr;
+        T* m_objPtr;
 	};
 
-	struct UserGCData: public UserData {
-        UserGCData(void* objPtr): UserData(objPtr) {};
-        ~UserGCData() {delete m_objPtr;};
+	template <typename T>
+    struct UserGCData : public UserData<T> {
+        UserGCData(T* objPtr): UserData<T>(objPtr) {};
+        ~UserGCData() {delete this->m_objPtr;};
     };
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -312,7 +314,7 @@ namespace ELuna
 	template<typename T>
 	struct convert2CppType {
 		inline static T convertType(lua_State* L, int index) {
-            UserGCData* ud = static_cast<UserGCData*>(luaL_checkudata(L, index, ClassName<T>::getName()));
+            UserGCData<T>* ud = static_cast<UserGCData<T>*>(luaL_checkudata(L, index, ClassName<T>::getName()));
             return *(static_cast<T*>(ud->m_objPtr));
 		}
 	};
@@ -320,7 +322,7 @@ namespace ELuna
 	template<typename T>
 	struct convert2CppType<T*> {
 		inline static T* convertType(lua_State* L, int index) {
-            UserData* ud = static_cast<UserData*>(luaL_checkudata(L, index, ClassName<T>::getName()));
+            UserData<T>* ud = static_cast<UserData<T>*>(luaL_checkudata(L, index, ClassName<T>::getName()));
             return static_cast<T*>(ud->m_objPtr);
 		}
 	};
@@ -328,7 +330,7 @@ namespace ELuna
 	template<typename T>
 	struct convert2CppType<T&> {
 		inline static T& convertType(lua_State* L, int index) {
-            UserData* ud = static_cast<UserData*>(luaL_checkudata(L, index, ClassName<T>::getName()));
+            UserData<T>* ud = static_cast<UserData<T>*>(luaL_checkudata(L, index, ClassName<T>::getName()));
             return *(static_cast<T*>(ud->m_objPtr));
 		}
 	};
@@ -381,8 +383,8 @@ namespace ELuna
 	template<typename T>
 	struct convert2LuaType {
 		inline static void convertType(lua_State* L, T& ret) {
-            UserGCData* ud = static_cast<UserGCData*>(lua_newuserdata(L, sizeof(UserGCData)));
-			new(ud) UserGCData(new T(ret));
+            UserGCData<T>* ud = static_cast<UserGCData<T>*>(lua_newuserdata(L, sizeof(UserGCData<T>)));
+            new(ud) UserGCData<T>(new T(ret));
 
 			luaL_getmetatable(L, ClassName<T>::getName());
 			lua_setmetatable(L, -2);
@@ -397,8 +399,8 @@ namespace ELuna
                 return;
 			}
 
-			UserData* ud = static_cast<UserData*>(lua_newuserdata(L, sizeof(UserData)));
-            new(ud) UserData(ret);
+			UserData<T>* ud = static_cast<UserData<T>*>(lua_newuserdata(L, sizeof(UserData<T>)));
+            new(ud) UserData<T>(ret);
 
 			luaL_getmetatable(L, ClassName<T>::getName());
 			lua_setmetatable(L, -2);
@@ -408,8 +410,8 @@ namespace ELuna
 	template<typename T>
 	struct convert2LuaType<T&> {
 		inline static void convertType(lua_State* L, T& ret) {
-			UserData* ud = static_cast<UserData*>(lua_newuserdata(L, sizeof(UserData)));
-            new(ud) UserData(&ret);
+            UserData<T>* ud = static_cast<UserData<T>*>(lua_newuserdata(L, sizeof(UserData<T>)));
+            new(ud) UserData<T>(&ret);
 
 			luaL_getmetatable(L, ClassName<T>::getName());
 			lua_setmetatable(L, -2);
@@ -606,7 +608,7 @@ namespace ELuna
 	template<typename T>
 	inline int gc_obj(lua_State *L) {
 		// clean up
-		UserData* ud = static_cast<UserData*>(luaL_checkudata(L, -1, ClassName<T>::getName()));
+        UserData<T>* ud = static_cast<UserData<T>*>(luaL_checkudata(L, -1, ClassName<T>::getName()));
         ud->~UserData();
 		return 0;
 	}
@@ -642,8 +644,8 @@ namespace ELuna
 
 	template<typename T>
 	inline int inject(lua_State *L, T* objPtr) {
-        UserGCData* ud = static_cast<UserGCData*>(lua_newuserdata(L, sizeof(UserGCData)));
-		new(ud) UserGCData(objPtr);
+        UserGCData<T>* ud = static_cast<UserGCData<T>*>(lua_newuserdata(L, sizeof(UserGCData<T>)));
+        new(ud) UserGCData<T>(objPtr);
 
 		luaL_getmetatable(L, ClassName<T>::getName());
 		lua_setmetatable(L, -2); // self.metatable = uniqe_metatable
