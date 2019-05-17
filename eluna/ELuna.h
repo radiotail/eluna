@@ -50,7 +50,6 @@ namespace ELuna
 {
 	struct LuaString;
 	struct LuaTable;
-	struct CPPGarbage;
 	template<typename T> struct ClassName;
 
 	inline void traceStack(lua_State* L, int n);
@@ -64,8 +63,7 @@ namespace ELuna
 	///////////////////////////////////////////////////////////////////////////////
 	// lua's string type
 	///////////////////////////////////////////////////////////////////////////////
-	struct LuaString
-	{
+	struct LuaString {
 		const char* str;
 		size_t len;
 	};
@@ -73,8 +71,7 @@ namespace ELuna
 	///////////////////////////////////////////////////////////////////////////////
 	// this is a table reference count
 	///////////////////////////////////////////////////////////////////////////////
-	struct TableRefCount
-	{
+	struct TableRefCount {
 
 		TableRefCount(lua_State* L): m_refCount(1) {}
 		~TableRefCount() {};
@@ -88,8 +85,7 @@ namespace ELuna
 	///////////////////////////////////////////////////////////////////////////////
 	// lua's table type
 	///////////////////////////////////////////////////////////////////////////////
-	struct LuaTable
-	{
+	struct LuaTable {
 		LuaTable(): m_refCount(NULL), m_tableAdd(NULL), m_luaState(NULL) {} ;
 
 		LuaTable(lua_State* L) {
@@ -106,7 +102,7 @@ namespace ELuna
 			m_tableAdd = rhs.m_tableAdd;
 			m_stackPos = rhs.m_stackPos;
 
-			if(m_refCount) m_refCount->incRef();
+			if (m_refCount) m_refCount->incRef();
 		}
 
 		LuaTable& operator=(const LuaTable& rhs) {
@@ -117,18 +113,18 @@ namespace ELuna
 			m_tableAdd = rhs.m_tableAdd;
 			m_stackPos = rhs.m_stackPos;
 
-			if(m_refCount) m_refCount->incRef();
+			if (m_refCount) m_refCount->incRef();
 
 			return *this;
 		}
 
 		//for reading table to cpps
 		LuaTable(lua_State* L, int index) {
-			if(index < 0) {
+			if (index < 0) {
 				index = lua_gettop(L) + index + 1;
 			}
 
-			if( !lua_istable(L, index) ) {
+			if (!lua_istable(L, index)) {
 				luaL_argerror(L, index, "table expected");
 			}
 
@@ -161,7 +157,7 @@ namespace ELuna
 		}
 
 		inline void releaseRef() {
-			if(m_refCount) {
+			if (m_refCount) {
 				if (!m_refCount->decRef()) {
 					if (isValid()) lua_remove(m_luaState, m_stackPos);
 
@@ -173,9 +169,10 @@ namespace ELuna
 		}
 
 		inline bool isValid() {
-			if(m_tableAdd) {
-				if(m_tableAdd == lua_topointer(m_luaState, m_stackPos))
-					return true;
+			if (m_tableAdd) {
+				if (m_tableAdd == lua_topointer(m_luaState, m_stackPos)) {
+                    return true;
+				}
 			}
 
 			return false;
@@ -198,7 +195,7 @@ namespace ELuna
 
 	template<typename K,typename V>
 	inline void LuaTable::set(const K& key, const V& value) {
-		if ( isValid() ) {
+		if (isValid()) {
 			push2lua(m_luaState, key); push2lua(m_luaState, value);
 			lua_settable(m_luaState, m_stackPos);
 		}
@@ -206,7 +203,7 @@ namespace ELuna
 
 	template<typename V>
 	inline void LuaTable::set(const int key, const V& value) {
-		if ( isValid() ) {
+		if (isValid()) {
 			lua_pushnumber(m_luaState, key); push2lua(m_luaState, value);
 			lua_settable(m_luaState, m_stackPos);
 		}
@@ -214,7 +211,7 @@ namespace ELuna
 
 	template<typename V>
 	inline void LuaTable::set(const char* key, const V& value) {
-		if ( isValid() ) {
+		if (isValid()) {
 			lua_pushstring(m_luaState, key); push2lua(m_luaState, value);
 			lua_settable(m_luaState, m_stackPos);
 		}
@@ -222,7 +219,7 @@ namespace ELuna
 
 	template<typename K,typename V>
 	inline V LuaTable::get(const K& key) {
-		if ( isValid() ) {
+		if (isValid()) {
 			push2lua(m_luaState, key);
 			lua_gettable(m_luaState, m_stackPos);
 		} else {
@@ -236,7 +233,7 @@ namespace ELuna
 
 	template<typename V>
 	inline V LuaTable::get(int key) {
-		if(isValid()) {
+		if (isValid()) {
 			lua_pushnumber(m_luaState, key);
 			lua_gettable(m_luaState, m_stackPos);
 		} else {
@@ -250,7 +247,7 @@ namespace ELuna
 
 	template<typename V>
 	inline V LuaTable::get(const char* key) {
-		if(isValid()) {
+		if (isValid()) {
 			lua_pushstring(m_luaState, key);
 			lua_gettable(m_luaState, m_stackPos);
 		} else {
@@ -264,7 +261,7 @@ namespace ELuna
 
 	template<typename K>
 	inline LuaTable LuaTable::get(const K& key) {
-		if ( isValid() ) {
+		if (isValid()) {
 			push2lua(m_luaState, key);
 			lua_gettable(m_luaState, m_stackPos);
 		} else {
@@ -276,7 +273,7 @@ namespace ELuna
 
 	template<>
 	inline LuaTable LuaTable::get(int key) {
-		if(isValid()) {
+		if (isValid()) {
 			lua_pushnumber(m_luaState, key);
 			lua_gettable(m_luaState, m_stackPos);
 		} else {
@@ -288,7 +285,7 @@ namespace ELuna
 
 	template<>
 	inline LuaTable LuaTable::get(const char* key) {
-		if(isValid()) {
+		if (isValid()) {
 			lua_pushstring(m_luaState, key);
 			lua_gettable(m_luaState, m_stackPos);
 		} else {
@@ -298,46 +295,46 @@ namespace ELuna
 		return LuaTable(m_luaState, -1);
 	}
 
-	template<typename T>
 	struct UserData {
-		UserData(T* objPtr, bool useLuaGC = true): m_objPtr(objPtr), m_gcFlag(useLuaGC) {};
-		~UserData() {
-			if( m_gcFlag )
-				delete m_objPtr;
-		};
-		T* m_objPtr;
-		bool m_gcFlag;
+		UserData(void* objPtr): m_objPtr(objPtr) {};
+        virtual ~UserData() {};
+		void* m_objPtr;
 	};
+
+	struct UserGCData: public UserData {
+        UserGCData(void* objPtr): UserData(objPtr) {};
+        ~UserGCData() {delete m_objPtr;};
+    };
 
 	///////////////////////////////////////////////////////////////////////////////
 	// read a value from lua to cpp
 	///////////////////////////////////////////////////////////////////////////////
 	template<typename T>
 	struct convert2CppType {
-		inline static T convertType(lua_State* L, int index){
-            UserData<T>** ud = static_cast<UserData<T>**>(luaL_checkudata(L, index, ClassName<T>::getName()));
-			return *((*ud)->m_objPtr);
+		inline static T convertType(lua_State* L, int index) {
+            UserGCData* ud = static_cast<UserGCData*>(luaL_checkudata(L, index, ClassName<T>::getName()));
+            return *(static_cast<T*>(ud->m_objPtr));
 		}
 	};
 
 	template<typename T>
 	struct convert2CppType<T*> {
-		inline static T* convertType(lua_State* L, int index){
-            UserData<T>** ud = static_cast<UserData<T>**>(luaL_checkudata(L, index, ClassName<T>::getName()));
-			return (*ud)->m_objPtr;
+		inline static T* convertType(lua_State* L, int index) {
+            UserData* ud = static_cast<UserData*>(luaL_checkudata(L, index, ClassName<T>::getName()));
+            return static_cast<T*>(ud->m_objPtr);
 		}
 	};
 
 	template<typename T>
 	struct convert2CppType<T&> {
-		inline static T& convertType(lua_State* L, int index){
-            UserData<T>** ud = static_cast<UserData<T>**>(luaL_checkudata(L, index, ClassName<T>::getName()));
-			return *((*ud)->m_objPtr);
+		inline static T& convertType(lua_State* L, int index) {
+            UserData* ud = static_cast<UserData*>(luaL_checkudata(L, index, ClassName<T>::getName()));
+            return *(static_cast<T*>(ud->m_objPtr));
 		}
 	};
 
 	template<typename T> inline T read2cpp(lua_State *L, int index) {
-		if(!lua_isuserdata(L, index)) {
+		if (!lua_isuserdata(L, index)) {
 			luaL_argerror(L, index, "userdata expected");
 		}
 
@@ -384,8 +381,8 @@ namespace ELuna
 	template<typename T>
 	struct convert2LuaType {
 		inline static void convertType(lua_State* L, T& ret) {
-			UserData<T>** ud = static_cast<UserData<T>**>(lua_newuserdata(L, sizeof(UserData<T>*)));
-			*ud = new UserData<T>(new T(ret));
+            UserGCData* ud = static_cast<UserGCData*>(lua_newuserdata(L, sizeof(UserGCData)));
+			new(ud) UserGCData(new T(ret));
 
 			luaL_getmetatable(L, ClassName<T>::getName());
 			lua_setmetatable(L, -2);
@@ -400,8 +397,8 @@ namespace ELuna
                 return;
 			}
 
-			UserData<T>** ud = static_cast<UserData<T>**>(lua_newuserdata(L, sizeof(UserData<T>*)));
-			*ud = new UserData<T>(ret, false);
+			UserData* ud = static_cast<UserData*>(lua_newuserdata(L, sizeof(UserData)));
+            new(ud) UserData(ret);
 
 			luaL_getmetatable(L, ClassName<T>::getName());
 			lua_setmetatable(L, -2);
@@ -411,8 +408,8 @@ namespace ELuna
 	template<typename T>
 	struct convert2LuaType<T&> {
 		inline static void convertType(lua_State* L, T& ret) {
-			UserData<T>** ud = static_cast<UserData<T>**>(lua_newuserdata(L, sizeof(UserData<T>*)));
-			*ud = new UserData<T>(&ret, false);
+			UserData* ud = static_cast<UserData*>(lua_newuserdata(L, sizeof(UserData)));
+            new(ud) UserData(&ret);
 
 			luaL_getmetatable(L, ClassName<T>::getName());
 			lua_setmetatable(L, -2);
@@ -458,23 +455,21 @@ namespace ELuna
 	// define a proxy class for method and fuction
 	///////////////////////////////////////////////////////////////////////////////
 	//this is a base method class.
-	struct GenericMethod
-	{
+	struct GenericMethod {
 		virtual ~GenericMethod() {};
 		GenericMethod(const char* name): m_name(name) {};
 
-		inline virtual int call(lua_State *L) { return 0;};
+		inline virtual int call(lua_State *L) { return 0; };
 
 		const char* m_name;
 	};
 
 	//this is a base function class.
-	struct GenericFunction
-	{
+	struct GenericFunction {
 		virtual ~GenericFunction() {};
 		GenericFunction(const char* name): m_name(name) {};
 
-		inline virtual int call(lua_State *L) { return 0;};
+		inline virtual int call(lua_State *L) { return 0; };
 
 		const char* m_name;
 	};
@@ -525,8 +520,7 @@ namespace ELuna
 
 	#define ELUNA_MAKE_METHODCLASSX(N)\
 	template<typename RL, ELUNA_METHODCLASSES_PARAM_LIST_##N >\
-	struct MethodClass##N : GenericMethod\
-	{\
+	struct MethodClass##N : GenericMethod {\
 		typedef RL (T::* TFUNC)(ELUNA_PARAM_LIST_##N);\
 		TFUNC m_func;\
 		MethodClass##N(const char* name, TFUNC func): GenericMethod(name), m_func(func) {};\
@@ -540,8 +534,7 @@ namespace ELuna
 
 	#define ELUNA_MAKE_REF_RL_METHODCLASSX(N)\
 	template<typename RL, ELUNA_METHODCLASSES_PARAM_LIST_##N >\
-	struct MethodClass##N<RL&, ELUNA_METHODCLASSES_SP_PARAM_LIST_##N> : GenericMethod\
-	{\
+	struct MethodClass##N<RL&, ELUNA_METHODCLASSES_SP_PARAM_LIST_##N> : GenericMethod {\
 		typedef RL& (T::* TFUNC)(ELUNA_PARAM_LIST_##N);\
 		TFUNC m_func;\
 		MethodClass##N(const char* name, TFUNC func): GenericMethod(name), m_func(func) {};\
@@ -555,8 +548,7 @@ namespace ELuna
 
 	#define ELUNA_MAKE_VOID_RL_METHODCLASSX(N) \
 	template<ELUNA_METHODCLASSES_PARAM_LIST_##N >\
-	struct MethodClass##N<void, ELUNA_METHODCLASSES_SP_PARAM_LIST_##N> : GenericMethod\
-	{\
+	struct MethodClass##N<void, ELUNA_METHODCLASSES_SP_PARAM_LIST_##N> : GenericMethod {\
 		typedef void (T::* TFUNC)(ELUNA_PARAM_LIST_##N);\
 		TFUNC m_func;\
 		MethodClass##N(const char* name, TFUNC func): GenericMethod(name), m_func(func) {};\
@@ -602,8 +594,7 @@ namespace ELuna
 	ELUNA_MAKE_VOID_RL_METHODCLASSX(9)
 
 	template<typename T>
-	struct ClassName
-	{
+	struct ClassName {
 		static inline void setName(const char* name) {m_name = name;}
 		static inline const char* getName() { return m_name;}
 
@@ -615,14 +606,14 @@ namespace ELuna
 	template<typename T>
 	inline int gc_obj(lua_State *L) {
 		// clean up
-		UserData<T>** ud = static_cast<UserData<T>**>(luaL_checkudata(L, -1, ClassName<T>::getName()));
-		delete (*ud);
+		UserData* ud = static_cast<UserData*>(luaL_checkudata(L, -1, ClassName<T>::getName()));
+        ud->~UserData();
 		return 0;
 	}
 
 	template<typename T>
 	inline void registerMetatable(lua_State *L, const char *name) {
-		luaL_newmetatable(L, name );  // create a metatable in the registry
+		luaL_newmetatable(L, name);	  // create a metatable in the registry
 
 		lua_pushstring(L, "__index"); //push metamethods's name
 		lua_pushvalue(L, -2);         //push matatable
@@ -640,10 +631,10 @@ namespace ELuna
 	}
 
 	template<typename T, typename F>
-	inline void registerClass(lua_State *L, const char* name, F func) {
+	inline void registerClass(lua_State *L, const char* name, F constructor) {
 		ClassName<T>::setName(name);
 
-		lua_pushcfunction(L, func);
+		lua_pushcfunction(L, constructor);
 		lua_setglobal(L, name);
 
 		registerMetatable<T>(L, name);
@@ -651,8 +642,8 @@ namespace ELuna
 
 	template<typename T>
 	inline int inject(lua_State *L, T* objPtr) {
-		UserData<T>** ud = static_cast<UserData<T>**>(lua_newuserdata(L, sizeof(UserData<T>*)));
-		*ud = new UserData<T>(objPtr);
+        UserGCData* ud = static_cast<UserGCData*>(lua_newuserdata(L, sizeof(UserGCData)));
+		new(ud) UserGCData(objPtr);
 
 		luaL_getmetatable(L, ClassName<T>::getName());
 		lua_setmetatable(L, -2); // self.metatable = uniqe_metatable
@@ -711,7 +702,7 @@ namespace ELuna
 	}
 
 	inline int proxyMethodCall(lua_State *L) {
-		GenericMethod* pMethod = (GenericMethod*)lua_touserdata(L, lua_upvalueindex(1));
+        GenericMethod* pMethod = static_cast<GenericMethod*>(lua_touserdata(L, lua_upvalueindex(1)));
 		return pMethod->call(L); // execute method
 	}
 
@@ -928,13 +919,12 @@ namespace ELuna
 
 	#define ELUNA_MAKE_FUNCTIONCLASSX(N)\
 	template<ELUNA_FUNCTIONCLASSX_PARAM_LIST_##N >\
-	struct FunctionClass##N : GenericFunction\
-	{\
+	struct FunctionClass##N : GenericFunction {\
 		typedef RL (* TFUNC)(ELUNA_PARAM_LIST_##N);\
 		TFUNC m_func;\
 		FunctionClass##N(const char* name, TFUNC func): GenericFunction(name), m_func(func) {};\
 		~FunctionClass##N() {};\
-			inline virtual int call(lua_State *L) {\
+		inline virtual int call(lua_State *L) {\
 			push2lua(L, (*m_func)(ELUNA_READ_FUNCTION_PARAM_LIST_##N));\
 			return 1;\
 		};\
@@ -942,13 +932,12 @@ namespace ELuna
 
 	#define ELUNA_MAKE_REF_RL_FUNCTIONCLASSX(N) \
 	template<ELUNA_FUNCTIONCLASSX_PARAM_LIST_##N >\
-	struct FunctionClass##N<ELUNA_FUNCTIONCLASSX_SP_REF_RL_PARAM_LIST_##N> : GenericFunction\
-	{\
+	struct FunctionClass##N<ELUNA_FUNCTIONCLASSX_SP_REF_RL_PARAM_LIST_##N> : GenericFunction {\
 		typedef RL& (* TFUNC)(ELUNA_PARAM_LIST_##N);\
 		TFUNC m_func;\
 		FunctionClass##N(const char* name, TFUNC func): GenericFunction(name), m_func(func) {};\
 		~FunctionClass##N() {};\
-			inline virtual int call(lua_State *L) {\
+		inline virtual int call(lua_State *L) {\
 			push2lua<RL&>(L, (*m_func)(ELUNA_READ_FUNCTION_PARAM_LIST_##N));\
 			return 1;\
 		};\
@@ -956,13 +945,12 @@ namespace ELuna
 
 	#define ELUNA_MAKE_VOID_RL_FUNCTIONCLASSX(N) \
 	template<ELUNA_FUNCTIONCLASSX_VOID_RL_PARAM_LIST_##N >\
-	struct FunctionClass##N<ELUNA_FUNCTIONCLASSX_SP_VOID_RL_PARAM_LIST_##N> : GenericFunction\
-	{\
+	struct FunctionClass##N<ELUNA_FUNCTIONCLASSX_SP_VOID_RL_PARAM_LIST_##N> : GenericFunction {\
 		typedef void (* TFUNC)(ELUNA_PARAM_LIST_##N);\
 		TFUNC m_func;\
 		FunctionClass##N(const char* name, TFUNC func): GenericFunction(name), m_func(func) {};\
 		~FunctionClass##N() {};\
-			inline virtual int call(lua_State *L) {\
+		inline virtual int call(lua_State *L) {\
 			(*m_func)(ELUNA_READ_FUNCTION_PARAM_LIST_##N);\
 			return 0;\
 		};\
@@ -1002,7 +990,7 @@ namespace ELuna
 	ELUNA_MAKE_VOID_RL_FUNCTIONCLASSX(9)
 
 	inline int proxyFunctionCall(lua_State *L) {
-		GenericFunction* pFunction = (GenericFunction*)lua_touserdata(L, lua_upvalueindex(1)); //get functionClass pointer
+        GenericFunction* pFunction = static_cast<GenericFunction*>(lua_touserdata(L, lua_upvalueindex(1)));  // get functionClass pointer
 		return pFunction->call(L); // execute function
 	}
 
@@ -1083,10 +1071,10 @@ namespace ELuna
 
 	inline void traceStack(lua_State* L, int n) {
 		lua_Debug ar;
-		if(lua_getstack(L, n, &ar)) {
+		if (lua_getstack(L, n, &ar)) {
 			lua_getinfo(L, "Sln", &ar);
 
-			if(ar.name) {
+			if (ar.name) {
 				printf("\tstack[%d] -> line %d : %s()[%s : line %d]\n", n, ar.currentline, ar.name, ar.short_src, ar.linedefined);
 			} else {
 				printf("\tstack[%d] -> line %d : unknown[%s : line %d]\n", n, ar.currentline, ar.short_src, ar.linedefined);
@@ -1108,8 +1096,7 @@ namespace ELuna
 	// bind lua function
 	///////////////////////////////////////////////////////////////////////////////
 	template<typename RL>
-	struct LuaFunction
-	{
+	class LuaFunction {
 	public:
 		~LuaFunction() {
 			luaL_unref(m_luaState, LUA_REGISTRYINDEX, m_ref);
@@ -1272,8 +1259,7 @@ namespace ELuna
 	};
 
 	template<>
-	struct LuaFunction<LuaTable>
-	{
+	class LuaFunction<LuaTable> {
 	public:
 		~LuaFunction() {
 			luaL_unref(m_luaState, LUA_REGISTRYINDEX, m_ref);
@@ -1426,8 +1412,7 @@ namespace ELuna
 	};
 
 	template<>
-	struct LuaFunction<void>
-	{
+	class LuaFunction<void> {
 	public:
 		LuaFunction(lua_State* L, const char* funcName): m_luaState(L) {
 			lua_getglobal(L, funcName);
@@ -1573,8 +1558,8 @@ namespace ELuna
 		lua_pushcclosure(L, error_log, 0);
 		int stackTop = lua_gettop(L);
 
-		if(luaL_loadfile(L, fileName) == 0) {
-			if(lua_pcall(L, 0, 0, stackTop)) {
+		if (luaL_loadfile(L, fileName) == 0) {
+			if (lua_pcall(L, 0, 0, stackTop)) {
 				lua_pop(L, 1);
 			}
 		} else {
