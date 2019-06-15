@@ -178,14 +178,12 @@ namespace ELuna
 			return false;
 		}
 
-		template<typename K,typename V> inline void set(const K& key, const V& value);
-		template<typename V> inline void set(const int key, const V& value);
-		template<typename V> inline void set(const char* key, const V& value);
+		template<typename K,typename V> inline void set(K key, V value);
 
-		template<typename K,typename V> inline V get(const K& key);
-		template<typename V> inline V get(int key);
-		template<typename V> inline V get(const char* key);
-		template<typename K> inline LuaTable get(const K& key);
+		template<typename K,typename V> inline V get(K key);
+		template<typename K> inline LuaTable get(K key);
+
+		template<typename K> inline bool has(K key);
 
 		int	m_stackPos;
 		TableRefCount* m_refCount;
@@ -194,61 +192,18 @@ namespace ELuna
 	};
 
 	template<typename K,typename V>
-	inline void LuaTable::set(const K& key, const V& value) {
+	inline void LuaTable::set(K key, V value) {
 		if (isValid()) {
-			push2lua(m_luaState, key); push2lua(m_luaState, value);
-			lua_settable(m_luaState, m_stackPos);
-		}
-	}
-
-	template<typename V>
-	inline void LuaTable::set(const int key, const V& value) {
-		if (isValid()) {
-			lua_pushnumber(m_luaState, key); push2lua(m_luaState, value);
-			lua_settable(m_luaState, m_stackPos);
-		}
-	}
-
-	template<typename V>
-	inline void LuaTable::set(const char* key, const V& value) {
-		if (isValid()) {
-			lua_pushstring(m_luaState, key); push2lua(m_luaState, value);
+			push2lua(m_luaState, key);
+			push2lua(m_luaState, value);
 			lua_settable(m_luaState, m_stackPos);
 		}
 	}
 
 	template<typename K,typename V>
-	inline V LuaTable::get(const K& key) {
+	inline V LuaTable::get(K key) {
 		if (isValid()) {
 			push2lua(m_luaState, key);
-			lua_gettable(m_luaState, m_stackPos);
-		} else {
-			lua_pushnil(m_luaState);
-		}
-
-		V result = read2cpp<V>(m_luaState, -1);
-		lua_pop(m_luaState, 1);
-		return result;
-	}
-
-	template<typename V>
-	inline V LuaTable::get(int key) {
-		if (isValid()) {
-			lua_pushnumber(m_luaState, key);
-			lua_gettable(m_luaState, m_stackPos);
-		} else {
-			lua_pushnil(m_luaState);
-		}
-
-		V result = read2cpp<V>(m_luaState, -1);
-		lua_pop(m_luaState, 1);
-		return result;
-	}
-
-	template<typename V>
-	inline V LuaTable::get(const char* key) {
-		if (isValid()) {
-			lua_pushstring(m_luaState, key);
 			lua_gettable(m_luaState, m_stackPos);
 		} else {
 			lua_pushnil(m_luaState);
@@ -260,7 +215,7 @@ namespace ELuna
 	}
 
 	template<typename K>
-	inline LuaTable LuaTable::get(const K& key) {
+	inline LuaTable LuaTable::get(K key) {
 		if (isValid()) {
 			push2lua(m_luaState, key);
 			lua_gettable(m_luaState, m_stackPos);
@@ -271,28 +226,18 @@ namespace ELuna
 		return LuaTable(m_luaState, -1);
 	}
 
-	template<>
-	inline LuaTable LuaTable::get(int key) {
+	template<typename K> 
+	inline bool LuaTable::has(K key) {
 		if (isValid()) {
-			lua_pushnumber(m_luaState, key);
+			push2lua(m_luaState, key);
 			lua_gettable(m_luaState, m_stackPos);
 		} else {
 			lua_pushnil(m_luaState);
 		}
 
-		return LuaTable(m_luaState, -1);
-	}
-
-	template<>
-	inline LuaTable LuaTable::get(const char* key) {
-		if (isValid()) {
-			lua_pushstring(m_luaState, key);
-			lua_gettable(m_luaState, m_stackPos);
-		} else {
-			lua_pushnil(m_luaState);
-		}
-
-		return LuaTable(m_luaState, -1);
+		bool ret = !lua_isnil(m_luaState, -1);
+		lua_pop(m_luaState, 1);
+		return ret;
 	}
 
 	template <typename T>

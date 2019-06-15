@@ -166,6 +166,13 @@ public:
 
 	ELuna::LuaTable testLuaTable(ELuna::LuaTable p) {
 		p.set(2, "world");
+		printf("has key: %d\n", p.has("world"));
+		printf("has key: %d\n", p.has(1));
+		printf("has key: %d\n", p.has(2));
+		printf("has key: %d\n", p.has(100));
+		printf("get value: %s\n", p.get<int, const char*>(1));
+		printf("get value: %s\n", p.get<int, const char*>(2));
+
 		return p;
 	}
 
