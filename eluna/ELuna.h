@@ -41,9 +41,9 @@ THE SOFTWARE.
 #include <assert.h>
 
 extern "C" {
-#include "lua/lua.h"
-#include "lua/lualib.h"
-#include "lua/lauxlib.h"
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
 }
 
 namespace ELuna
@@ -242,16 +242,36 @@ namespace ELuna
 
 	template <typename T>
 	struct UserData {
-        UserData(T* objPtr) : m_objPtr(objPtr){};
+        UserData(const T* objPtr) : m_objPtr(const_cast<T*>(objPtr)) {};
         virtual ~UserData() {};
         T* m_objPtr;
 	};
 
 	template <typename T>
     struct UserGCData : public UserData<T> {
-        UserGCData(T* objPtr): UserData<T>(objPtr) {};
+        UserGCData(const T* objPtr): UserData<T>(objPtr) {};
         ~UserGCData() {delete this->m_objPtr;};
     };
+
+	template<typename T>
+	struct remove_const {
+		typedef T type;
+	};
+
+	template<typename T>
+	struct remove_const<const T> {
+		typedef T type;
+	};
+
+	template<typename T>
+	struct remove_const<const T*> {
+		typedef T* type;
+	};
+
+	template<typename T>
+	struct remove_const<const T&> {
+		typedef T& type;
+	};
 
 	///////////////////////////////////////////////////////////////////////////////
 	// read a value from lua to cpp
@@ -281,12 +301,9 @@ namespace ELuna
 	};
 
 	template<typename T> inline T read2cpp(lua_State *L, int index) {
-		if (!lua_isuserdata(L, index)) {
-			luaL_argerror(L, index, "userdata expected");
-		}
-
-		return convert2CppType<T>::convertType(L, index);
+		return convert2CppType<typename remove_const<T>::type>::convertType(L, index);
 	};
+
 	template<>	inline void			read2cpp(lua_State *L, int index) {};
 	template<>	inline bool         read2cpp(lua_State *L, int index) { return lua_toboolean(L, index) == 1;};
 
@@ -327,7 +344,7 @@ namespace ELuna
 	///////////////////////////////////////////////////////////////////////////////
 	template<typename T>
 	struct convert2LuaType {
-		inline static void convertType(lua_State* L, T& ret) {
+		inline static void convertType(lua_State* L, const T& ret) {
             UserGCData<T>* ud = static_cast<UserGCData<T>*>(lua_newuserdata(L, sizeof(UserGCData<T>)));
             new(ud) UserGCData<T>(new T(ret));
 
@@ -338,7 +355,7 @@ namespace ELuna
 
 	template<typename T>
 	struct convert2LuaType<T*> {
-		inline static void convertType(lua_State* L, T* ret) {
+		inline static void convertType(lua_State* L, const T* ret) {
 			if (!ret) {
                 lua_pushnil(L);
                 return;
@@ -354,7 +371,7 @@ namespace ELuna
 
 	template<typename T>
 	struct convert2LuaType<T&> {
-		inline static void convertType(lua_State* L, T& ret) {
+		inline static void convertType(lua_State* L, const T& ret) {
             UserData<T>* ud = static_cast<UserData<T>*>(lua_newuserdata(L, sizeof(UserData<T>)));
             new(ud) UserData<T>(&ret);
 
@@ -363,7 +380,10 @@ namespace ELuna
 		}
 	};
 
-	template<typename T> inline void push2lua(lua_State *L, T ret) { convert2LuaType<T>::convertType(L, ret);};
+	template<typename T> inline void push2lua(lua_State *L, T ret) {
+		convert2LuaType<typename remove_const<T>::type>::convertType(L, ret);
+	};
+
 	template<> inline void push2lua(lua_State *L, bool ret) { lua_pushboolean(L, ret);};
 
 #if !defined(LUA_VERSION_NUM) || LUA_VERSION_NUM < 503

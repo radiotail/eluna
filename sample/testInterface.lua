@@ -168,6 +168,18 @@ print("method testObjPointer2: ", a, pObj)
 pObj:print()
 a:print()
 
+local pObj = TestObj("TestObjPointer3")
+local a = cppTest:testObjPointer3(pObj)
+print("method testObjPointer3: ", a, pObj)
+pObj:print()
+a:print()
+
+local pObj = TestObj("TestObjPointer4")
+local a = cppTest:testObjPointer4(pObj)
+print("method testObjPointer4: ", a, pObj)
+pObj:print()
+a:print()
+
 local obj = TestObj("TestObj")
 local a = cppTest:testObj(obj)
 print("method testObj: ", a, obj)

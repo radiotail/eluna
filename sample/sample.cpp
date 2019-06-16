@@ -78,7 +78,7 @@ void testLua(lua_State* L) {
 	ELuna::LuaTable luaTable(L, "luaTable");
 	//set table's key and value
 	luaTable.set(2, "world");
-	printf("LuaTable: %s %s\n", luaTable.get<char*>(1), luaTable.get<char*>(2));
+	printf("LuaTable: %s %s\n", luaTable.get<int, char*>(1), luaTable.get<int, char*>(2));
 }
 
 const char *fileName = "../sample/sample.lua";

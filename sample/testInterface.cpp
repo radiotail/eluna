@@ -200,6 +200,14 @@ public:
 		p->m_name = "TestObjPointer Changed";
 		return p;
 	}
+
+	const TestObj* testObjPointer3(TestObj* p) {
+		return p;
+	}
+
+	const TestObj* testObjPointer4(const TestObj* p) {
+		return p;
+	}
 private:
 };
 
@@ -445,6 +453,8 @@ void testCPP(lua_State* L) {
 	ELuna::registerMethod<Test>(L, "testObjPointer", &Test::testObjPointer);
 	ELuna::registerMethod<Test>(L, "testObjPointer1", &Test::testObjPointer1);
 	ELuna::registerMethod<Test>(L, "testObjPointer2", &Test::testObjPointer2);
+	ELuna::registerMethod<Test>(L, "testObjPointer3", &Test::testObjPointer3);
+	ELuna::registerMethod<Test>(L, "testObjPointer4", &Test::testObjPointer4);
 	ELuna::registerMethod<Test>(L, "testObj", &Test::testObj);
 	ELuna::registerMethod<Test>(L, "testObjRef", &Test::testObjRef);
 
